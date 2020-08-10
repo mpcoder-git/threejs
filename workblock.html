@@ -1,0 +1,123 @@
+<html>
+<head>
+	<style>
+      body { margin: 0; }
+      canvas { width: 500px; height: 500px; }
+     </style>
+</head>
+<body>
+<p> string1</p>
+	
+	<div id="3dmodel">
+	<canvas id="model" style="width: 500px; height: 500px;"></canvas>
+	</div>
+
+<p> string2</p>
+<script type="module">
+
+			import * as THREE from '/js/three.module.js';
+			import { OrbitControls } from '/js/OrbitControls.js';
+			import { PLYLoader } from '/js/PLYLoader.js';
+
+			const canvas = document.querySelector('#model');
+			const cWidth = document.getElementById("model").offsetWidth; 
+			const cHeight = document.getElementById("model").offsetHeight;
+
+			var camera, scene, renderer;
+
+			init();
+			animate();
+
+			function init() {
+				
+				  
+					//const renderer = new THREE.WebGLRenderer({canvas});
+				
+				
+				camera = new THREE.PerspectiveCamera( 60, cWidth/cHeight, 0.1, 1000 );
+				camera.position.z = 500;
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0xD0D0D0  );
+				scene.add( camera );
+
+				// light
+
+				var dirLight = new THREE.DirectionalLight( 0xffffff );
+				dirLight.position.set( 200, 200, 1000 ).normalize();
+
+				camera.add( dirLight );
+				camera.add( dirLight.target );
+
+				//load model
+
+				var loader = new PLYLoader();
+				loader.load( '/models/korpus.ply', function ( geometry ) {
+
+					//geometry.computeVertexNormals();
+
+					var material = new THREE.MeshStandardMaterial( { color: 0x0066FF, flatShading: true } );
+					var mesh = new THREE.Mesh( geometry, material );
+
+					mesh.position.y = -100;
+					mesh.position.z = 0;
+					mesh.rotation.x = - Math.PI / 2;
+					//mesh.scale.multiplyScalar( 0.001 );
+
+					mesh.castShadow = true;
+					mesh.receiveShadow = true;
+
+					scene.add( mesh );
+
+				} );
+
+				// renderer
+
+				renderer = new THREE.WebGLRenderer({canvas});
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( cWidth, cHeight );
+				
+				//document.body.appendChild( renderer.domElement );
+				document.getElementById('3dmodel').appendChild(renderer.domElement);
+				
+				// controls
+
+				var controls = new OrbitControls( camera, renderer.domElement );
+				controls.minDistance = 200;
+				controls.maxDistance = 400;
+
+				//
+
+
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				renderer.render( scene, camera );
+
+				
+
+			}
+
+</script>
+
+
+
+</body>
+</html>
